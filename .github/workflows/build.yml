@@ -37,12 +37,11 @@ jobs:
 
       - name: Compile Windows Installer Bypassing Strict TS
         run: |
-          yarn tauri build --config '{"tauri":{"bundle":{"active":true}}}' || yarn package || yarn build
+          yarn tauri build || yarn package || yarn build
         shell: bash
         env:
           TSC_COMPILE_ON_ERROR: "true"
           NEXT_TELEMETRY_DISABLED: "1"
-          YARN_SILENT: "true"
 
       - name: Upload Installer Backup Artifact
         uses: actions/upload-artifact@v4
