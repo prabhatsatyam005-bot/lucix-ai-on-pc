@@ -5,20 +5,23 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Resolves the Node.js 20 runner deprecation error
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Force Fix Yarn Version Conflict
+        run: |
+          npm install -g corepack --force
+          corepack enable
+        shell: bash
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24  # Upgrades target environment to fully support Corepack natively
+          node-version: 22
 
-      - name: Enable Corepack and Setup Yarn 4
+      - name: Activate Project Yarn Version
         run: |
-          corepack enable
           corepack prepare yarn@4.5.3 --activate
         shell: bash
 
