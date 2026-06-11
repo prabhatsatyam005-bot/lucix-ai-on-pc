@@ -9,6 +9,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
       - name: Force Fix Yarn Version Conflict
         run: |
           npm install -g corepack --force
@@ -30,8 +35,13 @@ jobs:
           yarn install --no-immutable
         shell: bash
 
-      - name: Direct Desktop Binary Packaging
-        run: |
-          yarn run package:win || npx electron-builder build --windows --x64 || echo "Bypassing frontend compilation"
-        shell: bash
-        
+      - name: Build and Release Windows Installer
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: lucix-ai-v1.0.0
+          releaseName: 'Lucix AI v1.0.0'
+          releaseBody: 'Official production installer for Lucix AI.'
+          includeRelease: true
+          
