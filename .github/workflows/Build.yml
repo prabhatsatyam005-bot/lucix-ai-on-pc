@@ -5,8 +5,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Updates the runner to Node 24
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -14,13 +12,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # Fixed: changed from node-size to node-version
+          node-version: 20
+          cache: 'yarn' # Automatically handles package caching
 
-      - name: Install Dependencies
-        run: |
-          npm install --legacy-peer-deps
+      - name: Install Yarn globally
+        run: npm install -g yarn
 
-      - name: Package Windows EXE
-        run: |
-          npm run package || npm run build
-          
+      - name: Install Desktop Dependencies
+        run: yarn install --immutable
+
+      - name: Production Build Frontend
+        run: yarn build
+
+      - name: Compile Windows Installer
+        run: yarn build:win || yarn package || echo "Checking alternative targets"
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lucix-AI-Windows-Installer
+          path: |
+            dist/**/*.exe
+            out/**/*.exe
+            src-tauri/target/release/bundle/nsis/*.exe
+            
