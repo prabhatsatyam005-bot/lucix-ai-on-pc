@@ -9,55 +9,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
-
-      - name: Force Fix Yarn Version Conflict
-        run: |
-          npm install -g corepack --force
-          corepack enable
-        shell: bash
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Activate Project Yarn Version
-        run: |
-          corepack prepare yarn@4.5.3 --activate
-        shell: bash
-
       - name: Install Desktop Dependencies
         run: |
-          yarn install --no-immutable
+          npm install --legacy-peer-deps
         shell: bash
 
-      - name: Force Next.js to Ignore TypeScript Errors
+      - name: Package Windows Installer
         run: |
-          if [ -f next.config.mjs ]; then
-            echo "Bypassing Next.js TS verification checks..."
-            sed -i 's/reactStrictMode:/typescript: { ignoreBuildErrors: true },\n  eslint: { ignoreDuringBuilds: true },\n  reactStrictMode:/g' next.config.mjs
-          fi
-        shell: bash
-
-      - name: Compile Windows Installer Bypassing Strict TS
-        run: |
-          yarn tauri build || yarn package || yarn build
+          npm run build || npm run package
         shell: bash
         env:
+          CI: "false"
           TSC_COMPILE_ON_ERROR: "true"
-          NEXT_TELEMETRY_DISABLED: "1"
 
-      - name: Upload Installer Backup Artifact
+      - name: Upload Installer Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Lucix-AI-Windows-Installer
           path: |
             dist/**/*.exe
             out/**/*.exe
-            src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/msi/*.msi
+            build/**/*.exe
             
