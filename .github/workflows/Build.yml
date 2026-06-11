@@ -1,0 +1,28 @@
+name: Build Lucix AI EXE
+on:
+  workflow_dispatch: # Allows you to manually trigger the build from your phone
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-size: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Package Windows EXE
+        run: npm run package # Uses the framework's default packaging script
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lucix-AI-Windows-Installer
+          path: dist/*.exe # Automatically grabs the compiled .exe file
+          
